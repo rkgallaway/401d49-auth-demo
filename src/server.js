@@ -7,6 +7,8 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 3002;
 const authRouter = require('./auth/router');
+const bearerAuth = require('./auth/middleware/bearer');
+const { UsersModel } = require('./auth/models');
 
 
 // set up CORS
@@ -19,6 +21,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(authRouter);
 
+app.get('/users', bearerAuth, async (req, res, next) => {
+  console.log('from the users get route', req.user);
+
+  let users = await UsersModel.findAll();
+  let payload = {
+    results: users,
+  };
+  res.status(200).send(payload);
+
+});
 
 module.exports = {
   app,
